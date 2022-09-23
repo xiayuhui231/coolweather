@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.coolweather.android.WeatherActivity;
 import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
@@ -34,6 +35,7 @@ public class AutoUpdateService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         updateWeather();
+        updateBingPic();
         AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
         int anHour = 8*60*60*1000;
         long triggerAtTime = SystemClock.elapsedRealtime() + anHour;
@@ -70,5 +72,24 @@ public class AutoUpdateService extends Service {
                 }
             });
         }
+    }
+
+    private void updateBingPic() {
+        String requestBingPic = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";
+        HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String url = response.body().string();
+                final String bingPic = Utility.handleBingPicResponse(url);
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
+                editor.putString("url", bingPic);
+                editor.apply();
+            }
+        });
     }
 }

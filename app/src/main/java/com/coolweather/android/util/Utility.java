@@ -84,4 +84,17 @@ public class Utility {
         }
         return null;
     }
+
+    public static String handleBingPicResponse(String response) {
+        try {
+            JSONArray jsonArray = new JSONObject(response).getJSONArray("images");
+            JSONObject jsonObject = jsonArray.getJSONObject(0);
+            String url = jsonObject.getString("url");
+            String url1 = "http://cn.bing.com"+url;
+            return url1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
